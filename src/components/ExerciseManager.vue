@@ -1,3 +1,4 @@
+// handles all exercises, shows the component and sends the relevent info
 <template>
   <div id="exercise-manager">
     <div>

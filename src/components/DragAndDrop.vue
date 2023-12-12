@@ -1,24 +1,16 @@
-<template id="drag-and-drop">
-  <span class="question">גררו את ההגדרה למושג המתאים לה</span>
-    <div v-for="(string, keyName, index) in terms" :key="keyName" class="ignore">
-      <div
-        :class="['term', chosenTermKey === keyName ? 'chosen' : '', failedAnimation && chosenTermKey === keyName ? 'failed' : '']"
-        :style="`grid-column: ${index + 1} / ${index + 2}`" @click="chosenItem('term', keyName, index)"> {{ string }}
+<template>
+  <div id="drag-and-drop">
+    <span class="question">גררו את ההגדרה למושג המתאים לה</span>
+    <div class="content-container">
+      <div class="draggable-container">
+        <p v-for="(definition, keyNameD) in definitions" :key="keyNameD" :class="['draggable', failedAnimation && chosenDefinitionKey === keyNameD ? 'failed' : '']" draggable="true" 
+        @dragstart="drag($event)" :id="`drag${keyNameD}`">{{ definition }}</p>
       </div>
-      <div
-        :class="['definition', chosenDefinitionKey === Object.keys(definitions)[index] ? 'chosen' : '', failedAnimation && chosenDefinitionKey === Object.keys(definitions)[index] ? 'failed' : '']"
-        :id="`input${index}`" :style="`grid-column: ${index + 1} / ${index + 2}`"
-        @click="chosenItem('definition', Object.keys(definitions)[index], index)"> {{ Object.values(definitions)[index]
-        }} </div>
+      <div class="droppable-container">
+          <p v-for="(term, keNameT) in terms" :key="keNameT" :id="`box-droppable${keNameT}`" class="box-droppable" @drop.prevent="drop($event)" @dragover="allowDrop($event)">{{ term }}</p>
+      </div>
+      <p class="txtFinish" v-show="allAnswered">מעולה! כל הכבוד</p>
     </div>
-  <div class="content-container">
-    <div class="draggable-container">
-      <p v-for="(definition, keyNameD, indexD) in definitions" :key="keyNameD" class="draggable" draggable="true" @dragstart="drag(indexD, keyNameD)" :id="`drag${indexD}`">{{ definition }}</p>
-    </div>
-    <div class="droppable-container">
-      <div v-for="(term, keyNameT, indexT) in terms" :key="keyNameT" :id="`box-droppable${indexT}`" class="box-droppable" @drop="drop(indexT)" @dragover="allowDrop"><p>{{ term }}</p></div>
-    </div>
-    <p id="txtFinish" v-show="finished">מעולה! כל הכבוד!</p>
   </div>
 </template>
 
@@ -31,9 +23,7 @@
       return {
         terms: {},
         definitions: {},
-        chosenTermIndex: -1,
         chosenTermKey: -1,
-        chosenDefinitionIndex: -1,
         chosenDefinitionKey: -1,
         termsNum: this.ques.term.length,
         answered: [],
@@ -43,10 +33,11 @@
       }
     },
     mounted() {
-      for (let i = 0; i < this.ques.term.length; i++) {
-        let random = Math.round(Math.random() * this.ques.term.length);
-        while(`index${random}` in this.terms || random >= this.ques.term.length) {
-          random = Math.round(Math.random() * this.ques.term.length);
+      //reorder definitions and terms randomly
+      for (let i = 0; i < this.termsNum; i++) {
+        let random = Math.round(Math.random() * this.termsNum);
+        while(`index${random}` in this.terms || random >= this.termsNum) {
+          random = Math.round(Math.random() * this.termsNum);
         }
         this.terms[`index${random}`] = this.ques.term[random];
       }
@@ -60,80 +51,51 @@
     },
     methods: {
       allowDrop(event) {
+        //prevent dragganle from going back to its original place
         event.preventDefault();
       },
-      drag(indexD, keyNameD) {
-        // alert(indexD);
-        this.currDrag = indexD;
-        this.currKey = keyNameD;
-        // event.dataTransfer.setData("text", event.target.id);
+      drag(event) {
+        //set the chosen definition key name as the currently dragged item
+        let defKey = event.currentTarget.id;
+        defKey = defKey.replace('drag', '');
+        this.chosenDefinitionKey = defKey;
+        event.dataTransfer.setData("text", event.target.id);
       },
-      drop(indexT, event) {
-        // event.preventDefault();
-        alert(`${indexT}, ${this.currDrag}, ${this.currKey}`);
-        let data = event.dataTransfer.getData("text");
-        event.target.appendChild(document.getElementById(data));
-        this.answered[event.currentTarget.id] = data;
-        if (Object.keys(this.answered).length === 4) {
-          if(this.checkAnswers()) {
-            this.finished = true;
-            this.$emit("finished");
-          }
-        }
-      },
-      chosenItem(currItem, keyNameIndex, currIndex) {
-        if (currItem === "term") {
-          if (this.chosenTermIndex === currIndex) {
-            this.chosenTermIndex = -1;
-            this.chosenTermKey = -1;
-          } else {
-            this.chosenTermIndex = currIndex;
-            this.chosenTermKey = keyNameIndex;
-          }
-        } else {
-          if (this.chosenDefinitionIndex === currIndex) {
-            this.chosenDefinitionIndex = -1;
-            this.chosenDefinitionKey = -1;
-          } else {
-            this.chosenDefinitionIndex = currIndex;
-            this.chosenDefinitionKey = keyNameIndex;
-          }
-        }
-      },
-      checkConnection() {
-      if (this.chosenTermIndex === -1 || this.chosenDefinitionIndex === -1) {
-        this.showEmpty = true;
-      } else {
+      drop(event) {
+        //set the chosen term key name as the currently dropped-on item
+        let termKey = event.currentTarget.id;
+        termKey = termKey.replace('box-droppable', '');
+        this.chosenTermKey = termKey;
+        //check if the definition and term match
         if (this.chosenTermKey === this.chosenDefinitionKey) {
-          this.chosenTermIndex = -1;
+          //prevent dragganle from going back to its original place, redefine variables to empty, update paired items number
+          event.preventDefault();
+          let data = event.dataTransfer.getData("text");
+          event.target.appendChild(document.getElementById(data));
+          this.answered[event.currentTarget.id] = data;
           this.chosenTermKey = -1;
-          this.chosenDefinitionIndex = -1;
           this.chosenDefinitionKey = -1;
           this.connectionNum++;
         } else {
+          //activate fail animation, redefine variables to empty
           this.failedAnimation = true;
           setTimeout(() => {
             this.failedAnimation = false;
-            this.chosenTermIndex = -1;
             this.chosenTermKey = -1;
-            this.chosenDefinitionIndex = -1;
             this.chosenDefinitionKey = -1;
-          }, 2100);
+          }, 1500);
         }
-        this.showEmpty = false;
-      }
-      if (this.connectionNum === this.ques.term.length) {
-        this.allConnected = true;
-      }
-    },
-      checkAnswers() {
-        for (let i = 0 ; i < this.ques.term.length ; i++ ) {
-          if (this.answered[`box-droppable${i}`] !== this.correct[`box-droppable${i}`]) {
-            return false;
-          }
+        //check if all items are paired, show finish text, redefine all variables to empty, move to next page
+        if (this.connectionNum === this.termsNum) {
+          this.allAnswered = true;
+          setTimeout(() => {
+            this.terms = {};
+            this.definitions = {};
+            this.allAnswered = false;
+            this.$emit('finished');
+          }, 2000);
         }
-        return true;
-      }
+      },
     },
   }
 </script>
@@ -141,70 +103,43 @@
 <style scoped>
 
   #drag-and-drop {
-    width: 30rem;
+    width: fit-content;
     height: fit-content;
-    position: relative;
-    padding: 10%;
-    display: flex;
-    flex-direction: column;
-    margin-top: 2rem;
+    direction: rtl;
   }
 
   .question {
-    top: 5rem;
-    position: relative;  
+    top: 3rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    right: 1rem;
   }
 
   .content-container {
-    margin-top: 4rem;
     padding: 10%;
     width: 30rem;
     height: 17rem;
-    display: grid;
-    grid-template: repeat(2, 1fr) / repeat(v-bind("termsNum"), 1fr);
-    justify-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     direction: ltr;
   }
 
-  .term,
-  .definition {
-    border-radius: 0.5rem ;
-    padding: 5%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 5rem;
-    border: 5px solid white;
-    background-color: rgba(255, 255, 255, 0.301);
-    margin: 0 5%;
-    text-align: center;
-    justify-content: center;
-    font-size: 0.8rem;
-  }
-
-  .term {
-    grid-row: 1 / 2;
-    align-self: flex-end;
-  }
-
-  .definition {
-    grid-row: 2/3;
-    align-self: flex-start;
-  }
-
   .draggable, .box-droppable {
-    width: 5rem;
+    width: 4rem;
     border: 0.05rem solid #aaaaaa;
     border-radius: 1rem;
     display: block;
     text-align: center;
     font-size: 0.7rem;
+    margin: 2rem;
+    padding: 1rem;
   }
 
   .draggable{
     color: black;
     background-color: white;
-    padding: 1rem;
     margin: 0 0.3rem;
     height: 4rem;
   }
@@ -219,26 +154,77 @@
 
   .box-droppable {
     background-color: darkgrey;
-    padding: 0%;
+    padding: 1rem 0;
     margin: 0 1rem;
     height: 3rem;
-  }
-  .droppable-container{
-    grid-row: 1 / 2;
-
   }
 
   .droppable-container, 
   .draggable-container {
     display: flex;
+    position: absolute;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     width: 80%;
     height: 15%;
   }
 
-  .draggable-container {
-    grid-row: 2/3;
+  .droppable-container{
+    top: -6rem;
   }
+  
+  .draggable-container {
+    bottom: 22rem;
+  }
+
+  @keyframes failedConnection {
+  0% {
+    background-color: rgb(255, 255, 255);
+  }
+
+  50% {
+    background-color: rgb(250, 195, 195);
+  }
+
+  100% {
+    background-color: rgba(255, 255, 255);
+  }
+}
+
+@-webkit-keyframes failedConnection {
+  0% {
+    background-color: rgba(255, 255, 255);
+  }
+
+  50% {
+    background-color: rgb(250, 195, 195);
+  }
+
+  100% {
+    background-color: rgba(255, 255, 255);
+  }
+}
+
+.failed {
+  animation: failedConnection 0.5s ease 3;
+  -webkit-animation: failedConnection 0.5s ease 3;
+}
+
+.txtFinish {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20rem;
+}
+
+@media screen and (max-width: 1500px) {
+  .draggable-container {
+    bottom: 19rem;
+  }
+
+  .box-droppable {
+    margin: 0px 0rem;
+}
+}
 
 </style>

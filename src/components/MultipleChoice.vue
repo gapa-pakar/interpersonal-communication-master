@@ -31,13 +31,18 @@
       }
     },
     methods: {
-      proceed() {
-        this.showAnswers = false;
-        this.showEmpty = false;
-        this.chosenAnswer =  -1;
-        this.$emit('finished');
+      selectAnswer(num) {
+        if (!this.showAnswers) {
+          if (this.chosenAnswer !== num) {
+            this.chosenAnswer = num;
+            this.showEmpty = false;
+          } else {
+            this.chosenAnswer = -1;
+          }
+        }
       },
       indicationScr(param) {
+        //indicates chosen, true or false answer, and reterns the correct src for the image
         let currSrc;
         if (this.showAnswers === false) {
           if (this.chosenAnswer === param) {
@@ -55,21 +60,13 @@
           }
         }
         return currSrc;
-        // if (param === this.ques.correct) {
-        //   return new URL("@/assets/correct.svg", import.meta.url).href;
-        // } else {
-        //   return new URL("@/assets/wrong.svg", import.meta.url).href;
-        // }
       },
-      selectAnswer(num) {
-        if (!this.showAnswers) {
-          if (this.chosenAnswer !== num) {
-            this.chosenAnswer = num;
-            this.showEmpty = false;
-          } else {
-            this.chosenAnswer = -1;
-          }
-        }
+      proceed() {
+        //set all variabled to default, move to next page
+        this.showAnswers = false;
+        this.showEmpty = false;
+        this.chosenAnswer =  -1;
+        this.$emit('finished');
       },
     }
   }

@@ -50,7 +50,7 @@ export default {
   mounted() {
     // fit SVG to screen proportions - take the CSS size of the svg element and set it to the viewBox values
     this.$refs.svg.setAttribute('viewBox', `0 0 ${this.$refs.svg.clientWidth} ${this.$refs.svg.clientHeight}`);
-    //place terms and definitiond randomly while saving original index
+    //place terms and definitiond randomly while saving original index in object
     for (let i = 0; i < this.ques.term.length; i++) {
       let random = Math.round(Math.random() * this.ques.term.length);
       while (`index${random}` in this.terms || random >= this.ques.term.length) {
@@ -91,17 +91,20 @@ export default {
         this.showEmpty = true;
       } else {
         if (this.chosenTermKey === this.chosenDefinitionKey) {
+          //draw svg line
           let x1 = Number(this.chosenTermIndex) * (this.$refs.svg.clientWidth / this.termsNum) + (this.$refs.svg.clientWidth / this.termsNum / 2);
           let x2 = Number(this.chosenDefinitionIndex) * (this.$refs.svg.clientWidth / this.termsNum) + (this.$refs.svg.clientWidth / this.termsNum / 2);
           let y1 = 0;
           let y2 = this.$refs.svg.clientHeight;
           this.paths[this.chosenTermIndex] = `M ${x1} ${y1} C ${x1} ${y2 * 1.2} ${x2} ${y2 * 0.01} ${x2} ${y2}`;
+          //reset variables to empty, update connections number
           this.chosenTermIndex = -1;
           this.chosenTermKey = -1;
           this.chosenDefinitionIndex = -1;
           this.chosenDefinitionKey = -1;
           this.connectionNum++;
         } else {
+          //show fail animation, reset variables to empty
           this.failedAnimation = true;
           setTimeout(() => {
             this.failedAnimation = false;
@@ -118,6 +121,7 @@ export default {
       }
     },
     proceed() {
+      //reset all variables to empty, move to next page
       this.terms = {};
       this.definitions = {};
       this.paths = [];
@@ -240,4 +244,6 @@ export default {
 
 .question {
   font-size: 1.5rem;
-}</style>
+}
+
+</style>

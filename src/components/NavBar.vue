@@ -1,10 +1,10 @@
 <template>
   <div id="nav-bar">
     <ol class="progress">
-      <li @click="changeScreen(subj1)" :class="[currPage >= 3 && currPage <= 10 ? 'is-active' : '', subj1Hover ? 'show-title' : '']"><span>מושגים בתקשורת</span></li>
-      <li @click="changeScreen(subj2)" :class="[currPage >= 11 && currPage <= 15 ? 'is-active' : '', subj2Hover ? 'show-title' : '']"><span>מודלים תקשורתיים</span></li>
-      <li @click="changeScreen(subj3)" :class="[currPage >= 16 && currPage <= 18 ? 'is-active' : '', subj3Hover ? 'show-title' : '']"><span>סיבות לרעשים תקשורתיים</span></li>
-      <li @click="changeScreen(subj4)" :class="[currPage >= 19 && currPage <= 20 ? 'is-active' : '', subj4Hover ? 'show-title' : '']"><span>פתרונות לרעשים תקשורתיים</span></li>
+      <li @click="changeScreen(subj1)" :class="currPage >= 3 && currPage <= 10 ? 'is-active' : ''"><span>מושגים בתקשורת</span></li>
+      <li @click="changeScreen(subj2)" :class="currPage >= 11 && currPage <= 15 ? 'is-active' : ''"><span>מודלים תקשורתיים</span></li>
+      <li @click="changeScreen(subj3)" :class="currPage >= 16 && currPage <= 18 ? 'is-active' : ''"><span>סיבות לרעשים תקשורתיים</span></li>
+      <li @click="changeScreen(subj4)" :class="currPage >= 19 && currPage <= 20 ? 'is-active' : ''"><span>פתרונות לרעשים תקשורתיים</span></li>
     </ol>
     <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1203 33.94">
       <line class="cls-1" y1="16.97" x2="1203" y2="16.97" />
