@@ -36,7 +36,7 @@
       checkAnswers() {
         //checks if the strings match
         for (let index = 0; index < this.ques.texts.length; index++) {
-          let currInput = userInput[index].replace(/[^a-zA-Z0-9 ]/g, '');
+          let currInput = this.userInput[index].replace(/[^a-zA-Z0-9 ]/g, '');
           let currAnswer = this.ques.answers[index].replace(/[^a-zA-Z0-9 ]/g, '');
           if (this.userInput[index] === undefined) {
             this.answerStatus[index] = "null";

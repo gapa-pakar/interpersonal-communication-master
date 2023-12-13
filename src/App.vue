@@ -53,7 +53,7 @@ export default {
   data() {
     return {
       currSubj: 0,
-      currScreen: 10,
+      currScreen: 1,
     }
   },
   methods: {

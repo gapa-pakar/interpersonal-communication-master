@@ -3,8 +3,8 @@
     <span class="question">גררו את ההגדרה למושג המתאים לה</span>
     <div class="content-container">
       <div class="draggable-container">
-        <p v-for="(definition, keyNameD) in definitions" :key="keyNameD" :class="['draggable', failedAnimation && chosenDefinitionKey === keyNameD ? 'failed' : '']" draggable="true" 
-        @dragstart="drag($event)" :id="`drag${keyNameD}`">{{ definition }}</p>
+        <p v-for="(definition, keyNameD) in definitions" :key="keyNameD" :class="['draggable', failedAnimation && chosenDefinitionKey === keyNameD ? 'failed' : '', dragged ? 'dragged' : '']" 
+        draggable="true" @drag="dragging" @dragend="dragEnd" @dragstart="drag($event)" :id="`drag${keyNameD}`">{{ definition }}</p>
       </div>
       <div class="droppable-container">
           <p v-for="(term, keNameT) in terms" :key="keNameT" :id="`box-droppable${keNameT}`" class="box-droppable" @drop.prevent="drop($event)" @dragover="allowDrop($event)">{{ term }}</p>
@@ -29,7 +29,9 @@
         answered: [],
         failedAnimation: false,
         allAnswered: false,
-        connectionNum: 0
+        connectionNum: 0,
+        dragged: false,
+        root: document.querySelector(':root')
       }
     },
     mounted() {
@@ -54,8 +56,19 @@
         //prevent dragganle from going back to its original place
         event.preventDefault();
       },
+      dragging() {
+        this.root.style.setProperty('--cursor', 'grab');
+      },
+      dragEnd() {
+        this.root.style.setProperty('--cursor', 'auto');
+      },
       drag(event) {
         //set the chosen definition key name as the currently dragged item
+        this.dragged = true;
+        setTimeout(() => {
+          event.target.classList.add("dragged");
+        }, 50);
+        this.root.style.setProperty('--cursor', 'grab');
         let defKey = event.currentTarget.id;
         defKey = defKey.replace('drag', '');
         this.chosenDefinitionKey = defKey;
@@ -63,6 +76,8 @@
       },
       drop(event) {
         //set the chosen term key name as the currently dropped-on item
+        this.dragged = false;
+        this.root.style.setProperty('--cursor', 'auto');
         let termKey = event.currentTarget.id;
         termKey = termKey.replace('box-droppable', '');
         this.chosenTermKey = termKey;
@@ -102,7 +117,12 @@
 
 <style scoped>
 
+  :root {
+    --cursor: auto;
+  }
+
   #drag-and-drop {
+    cursor: var(--cursor) !important;
     width: fit-content;
     height: fit-content;
     direction: rtl;
@@ -149,7 +169,7 @@
   }
 
   .draggable:active {
-    cursor: grab;
+    cursor: grab !important; 
   }
 
   .box-droppable {
@@ -176,6 +196,21 @@
   .draggable-container {
     bottom: 22rem;
   }
+
+  .dragged * {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab !important;
+    cursor: -moz-grab;
+    cursor: -webkit-grab !important;
+  }
+
+  .dragged:active {
+    cursor: grabbing !important;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing !important; 
+}
+
+
 
   @keyframes failedConnection {
   0% {
