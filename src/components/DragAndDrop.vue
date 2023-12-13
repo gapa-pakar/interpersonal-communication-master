@@ -30,8 +30,6 @@
         failedAnimation: false,
         allAnswered: false,
         connectionNum: 0,
-        // dragged: false,
-        // root: document.querySelector(':root')
       }
     },
     mounted() {
