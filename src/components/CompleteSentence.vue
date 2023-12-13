@@ -34,25 +34,31 @@
     },
     methods: {
       checkAnswers() {
+        //checks if the strings match
         for (let index = 0; index < this.ques.texts.length; index++) {
+          let currInput = userInput[index].replace(/[^a-zA-Z0-9 ]/g, '');
+          let currAnswer = this.ques.answers[index].replace(/[^a-zA-Z0-9 ]/g, '');
           if (this.userInput[index] === undefined) {
             this.answerStatus[index] = "null";
-          } else if (this.userInput[index] === this.ques.answers[index]) {
+          } else if (currInput === currAnswer) {
             this.answerStatus[index] = "correct";
           } else {
             this.answerStatus[index] = "wrong";
           }
         }
+        //checks if all answers are correct
         this.allCorrect = true;
         for (let i = 0; i < this.answerStatus.length; i++) {
           if (this.answerStatus[i] === "wrong") {
             this.allCorrect = false;
           }
         }
+        //after 3 tries of not all correct, shows word bank
         this.timesAnswered++;
         this.timesAnswered >= 3 ? this.showContainer = true : this.showContainer = false;
         this.showAnswers = true;
       },
+      //adds V or X to the answers accordingly
       indicationScr(param) {
         if (this.answerStatus[param] === "correct") {
           return new URL("@/assets/correct.svg", import.meta.url).href;
@@ -60,6 +66,7 @@
           return new URL("@/assets/wrong.svg", import.meta.url).href;
         }
       },
+      //set variables to empty, move to next page
       proceed() {
         this.userInput = [];
         this.showAnswers = false;
