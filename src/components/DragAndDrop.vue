@@ -30,8 +30,8 @@
         failedAnimation: false,
         allAnswered: false,
         connectionNum: 0,
-        dragged: false,
-        root: document.querySelector(':root')
+        // dragged: false,
+        // root: document.querySelector(':root')
       }
     },
     mounted() {
@@ -56,19 +56,8 @@
         //prevent dragganle from going back to its original place
         event.preventDefault();
       },
-      dragging() {
-        this.root.style.setProperty('--cursor', 'grab');
-      },
-      dragEnd() {
-        this.root.style.setProperty('--cursor', 'auto');
-      },
       drag(event) {
         //set the chosen definition key name as the currently dragged item
-        this.dragged = true;
-        setTimeout(() => {
-          event.target.classList.add("dragged");
-        }, 50);
-        this.root.style.setProperty('--cursor', 'grab');
         let defKey = event.currentTarget.id;
         defKey = defKey.replace('drag', '');
         this.chosenDefinitionKey = defKey;
@@ -76,8 +65,6 @@
       },
       drop(event) {
         //set the chosen term key name as the currently dropped-on item
-        this.dragged = false;
-        this.root.style.setProperty('--cursor', 'auto');
         let termKey = event.currentTarget.id;
         termKey = termKey.replace('box-droppable', '');
         this.chosenTermKey = termKey;
